@@ -10,10 +10,16 @@ app.config["WTF_CSRF_ENABLED"] = False
 db.init_app(app)
 connect_db(app)
 
+# @app.route("/", methods=["GET"])
+# def redirect_to_list():
+#     """Redirect to list of cupcakes"""
+#     return redirect("/api/cupcakes")
+
 @app.route("/", methods=["GET"])
-def redirect_to_list():
-    """Redirect to list of cupcakes"""
-    return redirect("/api/cupcakes")
+def index():
+    """Render the HTML page for cupcakes"""
+    return render_template("list.html")
+
 
 @app.route("/api/cupcakes", methods=["GET"])
 def show_all_cupcakes():
