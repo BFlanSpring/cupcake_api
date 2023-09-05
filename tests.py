@@ -104,3 +104,115 @@ class CupcakeViewsTestCase(TestCase):
             })
 
             self.assertEqual(Cupcake.query.count(), 2)
+
+    def test_update_cupcake(self):
+        with self.app:
+            # Prepare data for updating the cupcake
+            updated_data = {
+                "flavor": "UpdatedFlavor",
+                "size": "UpdatedSize",
+                "rating": 8,
+                "image": "http://updated.com/cupcake.jpg"
+            }
+
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = self.app.patch(url, json=updated_data)
+
+            self.assertEqual(resp.status_code, 200)
+
+            data = resp.json
+            self.assertEqual(data, {
+                "cupcake": {
+                    "id": self.cupcake.id,
+                    "flavor": "UpdatedFlavor",
+                    "size": "UpdatedSize",
+                    "rating": 8,
+                    "image": "http://updated.com/cupcake.jpg"
+                }
+            })
+
+            # Verify that the cupcake was updated in the database
+            updated_cupcake = Cupcake.query.get(self.cupcake.id)
+            self.assertEqual(updated_cupcake.flavor, "UpdatedFlavor")
+            self.assertEqual(updated_cupcake.size, "UpdatedSize")
+            self.assertEqual(updated_cupcake.rating, 8)
+            self.assertEqual(updated_cupcake.image, "http://updated.com/cupcake.jpg")
+
+    def test_delete_cupcake(self):
+        with self.app:
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = self.app.delete(url)
+
+            self.assertEqual(resp.status_code, 200)
+            data = resp.json
+            self.assertEqual(data, {"message": "Deleted"})
+
+           
+            deleted_cupcake = Cupcake.query.get(self.cupcake.id)
+            self.assertIsNone(deleted_cupcake)
+
+    def test_edit_cupcake_with_no_image(self):
+        with self.app:
+            # Prepare data for editing the cupcake with no new image URL
+            updated_data = {
+                "flavor": "EditedFlavor",
+                "size": "EditedSize",
+                "rating": 9,
+                "image": ""
+            }
+
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = self.app.patch(url, json=updated_data)
+
+            self.assertEqual(resp.status_code, 200)
+
+            data = resp.json
+            self.assertEqual(data, {
+                "cupcake": {
+                    "id": self.cupcake.id,
+                    "flavor": "EditedFlavor",
+                    "size": "EditedSize",
+                    "rating": 9,
+                    "image": "http://test.com/cupcake.jpg" 
+                }
+            })
+
+            # Verify that the cupcake was updated in the database
+            edited_cupcake = Cupcake.query.get(self.cupcake.id)
+            self.assertEqual(edited_cupcake.flavor, "EditedFlavor")
+            self.assertEqual(edited_cupcake.size, "EditedSize")
+            self.assertEqual(edited_cupcake.rating, 9)
+            self.assertEqual(edited_cupcake.image, "http://test.com/cupcake.jpg")  # Original image URL
+
+    def test_edit_cupcake_without_changes(self):
+        with self.app:
+            # Prepare data for editing the cupcake without making any changes
+            updated_data = {
+                "flavor": "TestFlavor",
+                "size": "TestSize",
+                "rating": 5,
+                "image": "http://test.com/cupcake.jpg"
+            }
+
+            url = f"/api/cupcakes/{self.cupcake.id}"
+            resp = self.app.patch(url, json=updated_data)
+
+            self.assertEqual(resp.status_code, 200)
+
+            data = resp.json
+            self.assertEqual(data, {
+                "cupcake": {
+                    "id": self.cupcake.id,
+                    "flavor": "TestFlavor",
+                    "size": "TestSize",
+                    "rating": 5,
+                    "image": "http://test.com/cupcake.jpg"
+                }
+            })
+
+            # Check if db changes
+            unchanged_cupcake = Cupcake.query.get(self.cupcake.id)
+            self.assertEqual(unchanged_cupcake.flavor, "TestFlavor")
+            self.assertEqual(unchanged_cupcake.size, "TestSize")
+            self.assertEqual(unchanged_cupcake.rating, 5)
+            self.assertEqual(unchanged_cupcake.image, "http://test.com/cupcake.jpg")

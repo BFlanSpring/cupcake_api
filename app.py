@@ -10,10 +10,6 @@ app.config["WTF_CSRF_ENABLED"] = False
 db.init_app(app)
 connect_db(app)
 
-# @app.route("/", methods=["GET"])
-# def redirect_to_list():
-#     """Redirect to list of cupcakes"""
-#     return redirect("/api/cupcakes")
 
 @app.route("/", methods=["GET"])
 def index():
@@ -37,9 +33,9 @@ def add_cupcake():
     # Get JSON data from the request
     data = request.get_json()
 
-    print("Received JSON data:", data)  # Add this line for debugging
+    print("Received JSON data:", data)  
 
-    # Create a new Cupcake instance
+  
     new_cupcake = Cupcake(
         flavor=data['flavor'],
         size=data['size'],
@@ -47,13 +43,13 @@ def add_cupcake():
         image=data.get('image', 'https://tinyurl.com/demo-cupcake')
     )
 
-    # Add the new cupcake to the database
+   
     db.session.add(new_cupcake)
     db.session.commit()
 
     print("Cupcake added to the database:", new_cupcake.serialize())  # Add this line for debugging
 
-    # Return a JSON response with the newly created cupcake data
+   
     return jsonify(cupcake={
         "id": new_cupcake.id,
         "flavor": new_cupcake.flavor,
@@ -68,16 +64,16 @@ def update_cupcake(id):
     # Get JSON data from the request
     data = request.get_json()
 
-    # Retrieve the cupcake from the database or return a 404 if not found
+   
     cupcake = Cupcake.query.get_or_404(id)
 
-    # Update the cupcake's attributes
+  
     cupcake.flavor = data['flavor']
     cupcake.size = data['size']
     cupcake.rating = data['rating']
     cupcake.image = data.get('image', 'https://tinyurl.com/demo-cupcake')
 
-    # Commit the changes to the database
+    
     db.session.commit()
 
     # Return a JSON response with the newly updated cupcake data
@@ -89,14 +85,14 @@ def delete_cupcake(id):
     cupcake = Cupcake.query.get(id)
 
     if cupcake is None:
-        # If the cupcake doesn't exist, return a 404 response
+        
         return jsonify({"message": "Cupcake not found"}), 404
 
-    # Delete the cupcake from the database
+   
     db.session.delete(cupcake)
     db.session.commit()
 
-    # Return a JSON response indicating successful deletion
+   
     return jsonify({"message": "Deleted"})
 
 
